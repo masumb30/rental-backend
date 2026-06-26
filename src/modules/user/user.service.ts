@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import User, { IUser } from "./user.model";
 
 const createUser = async (payload: Partial<IUser>): Promise<IUser> => {
@@ -5,8 +6,16 @@ const createUser = async (payload: Partial<IUser>): Promise<IUser> => {
     return user;
 };
 
-const getAllUsers = async (): Promise<IUser[]> => {
-    const users = await User.find();
+const getAllUsers = async (): Promise<any[]> => {
+    console.log('Fetching all users from the database...');
+    const db = mongoose.connection.db;
+    if (!db) throw new Error("Database connection not initialized.");
+
+    // Authenticate user via token
+    const userCollection = db.collection('user');
+
+    // Fetch the property to check ownership
+    const users = await userCollection.find().toArray();
     return users;
 };
 

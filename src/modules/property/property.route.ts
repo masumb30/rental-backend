@@ -11,4 +11,5 @@ router.post(
 );
 
 
+
 export const PropertyRoutes = router;

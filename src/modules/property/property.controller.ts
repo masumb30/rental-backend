@@ -4,17 +4,17 @@ import { PropertyService } from './property.service';
 export const PropertyController = {
   addProperty: async (req: Request, res: Response): Promise<void> => {
     try {
-      // Assuming your Better Auth authentication middleware decodes the token 
-      // and attaches the user info to req.user
-      const userId = (req as any).user?.id || 'mocked_user_id_for_testing';
+      console.log(req.headers);
+      
+      const token = req.headers.authorization?.split(' ')[1];
+      
 
-      if (!userId) {
+      if (!token) {
          res.status(401).json({ success: false, message: "Unauthorized access" });
          return;
       }
 
-      // Pass form data and userId to service layer using await
-      const newProperty = await PropertyService.createProperty(req.body, userId);
+      const newProperty = await PropertyService.createProperty(req.body, token);
 
       // Respond with success
       res.status(201).json({

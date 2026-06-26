@@ -21,6 +21,8 @@ router.patch(
     UserController.updateUser
 );
 
+router.patch('/:userId/role/:newRole', UserController.updateUserRole);
+
 router.delete("/:id", UserController.deleteUser);
 
 export const UserRoutes = router;

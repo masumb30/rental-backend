@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { UserRoutes } from "../modules/user/user.route";
+import { PropertyRoutes } from "../modules/property/property.route";
 
 const router = Router();
 
@@ -10,10 +11,8 @@ const moduleRoutes = [
     },
     {
         path: "/properties",
-        route: UserRoutes,
+        route: PropertyRoutes,
     }
-    // Add more module routes here as the app grows
-    // { path: "/products", route: ProductRoutes },
 ];
 
 moduleRoutes.forEach((route) => {

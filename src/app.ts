@@ -10,7 +10,7 @@ import globalErrorHandler from "./middlewares/globalErrorHandler";
 const app = express();
 
 // --------------- Global Middlewares ---------------
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
@@ -27,7 +27,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // --------------- API Routes ---------------
-app.use("/api/v1", router);
+app.use("/", router);
+
 
 // --------------- Error Handling ---------------
 app.use(notFoundHandler);
