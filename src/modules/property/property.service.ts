@@ -2,6 +2,19 @@ import mongoose from 'mongoose';
 import { Property, IProperty } from './property.model';
 
 export const PropertyService = {
+  getAllProperties: async () => {
+
+
+    try {
+      // Update and return the newly modified document
+      const properties = await Property.find();
+      return properties;
+    }
+    catch (error) {
+      console.error("❌ Database update error:", error);
+      throw new Error("Failed to update property in the database.");
+    }
+  },
   // Async function to create and save a property to MongoDB
   createProperty: async (propertyData: Partial<IProperty>, token: string) => {
     console.log("token from service: ", token)
@@ -80,14 +93,17 @@ export const PropertyService = {
     const session = await db.collection('session').findOne({ token });
     if (!session) throw new Error("Session not found.");
 
+    const user = await db.collection('user').findOne({ _id: session.userId });
+    if (!user) throw new Error("User not found.");
+
+    if(user.role == 'tenant ') {
+      throw new Error("Unauthorized: Only owners and admins can delete property listings.");
+    }
+
     // Fetch the property to check ownership
     const property = await Property.findById(propertyId);
     if (!property) throw new Error("Property not found.");
 
-    // Authorization Guard: Check if the session's userId matches the property owner's id
-    if (property.ownerInfo?.id !== session.userId.toString()) {
-      throw new Error("Unauthorized: You do not own this property listing.");
-    }
 
     try {
       // Remove the document from the collection

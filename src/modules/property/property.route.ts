@@ -5,6 +5,9 @@ import { PropertyController } from "./property.controller";
 
 const router = Router();
 
+router.get("/", PropertyController.getAllProperties);
+router.delete("/:id", PropertyController.deleteProperty);
+
 router.post(
     "/",
     PropertyController.addProperty
