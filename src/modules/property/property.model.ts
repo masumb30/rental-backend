@@ -13,7 +13,7 @@ export interface IProperty extends Document {
   amenities: string[]; // Added
   images: string[];
   extraFeatures: string[]; // Added (Can also be String if it's a text block)
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Archived'; // Added
+  status: 'pending' | 'approved' | 'rejected'; // Added
   
   ownerInfo?: { // Added optional embedded owner info override
     name?: string;
@@ -41,13 +41,14 @@ const PropertySchema: Schema = new Schema(
     status: { 
       type: String, 
       required: true, 
-      enum: ['Pending', 'Approved', 'Rejected', 'Archived'], 
-      default: 'Pending' // Automatically sets to Pending on creation
+      enum: ['pending', 'approved', 'rejected'], 
+      default: 'pending' // Automatically sets to Pending on creation
     },
     ownerInfo: { // Optional: If you need data beyond just the Better Auth userId
       name: { type: String, trim: true },
       id: {type: String}, // Optional: If you want to store the Better Auth userId here as well for quick access
-    }
+    },
+    rejectionReason: { type: String, trim: true }, // Optional: Reason for rejection if status is Rejected
   },
   { timestamps: true } 
 );

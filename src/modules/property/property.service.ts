@@ -1,20 +1,66 @@
 import mongoose from 'mongoose';
 import { Property, IProperty } from './property.model';
+interface FilterDTO {
+  search: string;
+  type: string;
+  sortBy: string;
+  page: number;
+}
 
 export const PropertyService = {
-  getAllProperties: async () => {
+  getAllProperties: async ({ search, type, sortBy, page }: FilterDTO) => {
+    const LIMIT = 6; // Fixed 6 items per page
 
+    // 1. Build the filter object (always enforce status: 'approved')
+    const filterQuery: any = { status: 'approved' };
 
-    try {
-      // Update and return the newly modified document
-      const properties = await Property.find();
-      return properties;
+    if (type && type !== 'All') {
+      filterQuery.type = type;
     }
-    catch (error) {
-      console.error("❌ Database update error:", error);
-      throw new Error("Failed to update property in the database.");
+
+    if (search) {
+      // Regex search matching title OR location case-insensitively
+      filterQuery.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { location: { $regex: search, $options: 'i' } }
+      ];
     }
+
+    // 2. Define the sorting strategy
+    let sortQuery: any = { createdAt: -1 }; // Default Newest
+    if (sortBy === 'Price: Low to High') sortQuery = { price: 1 };
+    if (sortBy === 'Price: High to Low') sortQuery = { price: -1 };
+    if (sortBy === 'Rating') sortQuery = { rating: -1 };
+
+    // 3. Execute count and data fetch in parallel for performance optimization
+    const skipAmount = (page - 1) * LIMIT;
+
+    const [totalDocuments, data] = await Promise.all([
+      Property.countDocuments(filterQuery),
+      Property.find(filterQuery)
+        .sort(sortQuery)
+        .skip(skipAmount)
+        .limit(LIMIT)
+        .lean() // Plain JavaScript objects perform faster
+    ]);
+
+    // 4. Calculate pagination bounds
+    const totalPages = Math.ceil(totalDocuments / LIMIT) || 1;
+
+    return {
+      data,
+      pageInfo: {
+        totalPages,
+        currentPage: page
+      }
+    };
   },
+  getAllPropertiesForAdmin: async () => {
+    const data = await Property.find() // Fetch all properties for admin view
+    return data;
+  },
+
+
   // Async function to create and save a property to MongoDB
   createProperty: async (propertyData: Partial<IProperty>, token: string) => {
     console.log("token from service: ", token)
@@ -96,7 +142,7 @@ export const PropertyService = {
     const user = await db.collection('user').findOne({ _id: session.userId });
     if (!user) throw new Error("User not found.");
 
-    if(user.role == 'tenant ') {
+    if (user.role == 'tenant ') {
       throw new Error("Unauthorized: Only owners and admins can delete property listings.");
     }
 
@@ -113,5 +159,58 @@ export const PropertyService = {
       console.error("❌ Database delete error:", error);
       throw new Error("Failed to delete property from the database.");
     }
-  }
+  },
+  approveProperty: async (propertyId: string, token: string) => {
+    const db = mongoose.connection.db;
+    if (!db) throw new Error("Database connection not initialized.");
+
+    // Authenticate user via token
+    const session = await db.collection('session').findOne({ token });
+    if (!session) throw new Error("Session not found.");
+
+    const user = await db.collection('user').findOne({ _id: session.userId });
+    if (!user) throw new Error("User not found.");
+    console.log("user role: d", user)
+
+    if (user.role.toLowerCase() !== 'admin') {
+      throw new Error("Unauthorized: Only admins can approve property listings.");
+    }
+
+    try {
+      // Remove the document from the collection
+      const property = await Property.findOneAndUpdate({ _id: propertyId }, { $set: { status: 'approved' } }, { new: true });
+      return { success: true, message: "Property successfully approved." };
+    } catch (error) {
+      console.error("❌ Database approve error:", error);
+      throw new Error("Failed to approve property in the database.");
+    }
+  },
+  rejectProperty: async (propertyId: string, token: string, rejectionReason: string) => {
+    const db = mongoose.connection.db;
+    if (!db) throw new Error("Database connection not initialized.");
+
+    // Authenticate user via token
+    const session = await db.collection('session').findOne({ token });
+    if (!session) throw new Error("Session not found.");
+
+    const user = await db.collection('user').findOne({ _id: session.userId });
+    if (!user) throw new Error("User not found.");
+
+    if (user.role.toLowerCase() !== 'admin') {
+      throw new Error("Unauthorized: Only admins can approve property listings.");
+    }
+
+    // Fetch the property to check ownership
+
+
+
+    try {
+      // Remove the document from the collection
+      const property = await Property.findOneAndUpdate({ _id: propertyId }, { $set: { status: 'rejected', rejectionReason } }, { new: true });
+      return { success: true, message: "Property successfully rejected." };
+    } catch (error) {
+      console.error("❌ Database reject error:", error);
+      throw new Error("Failed to reject property in the database.");
+    }
+  },
 };
