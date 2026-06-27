@@ -10,6 +10,7 @@ router.get("/featured", PropertyController.getAllProperties);
 router.get("/foradmin", PropertyController.getAllPropertiesForAdmin);
 router.get("/:id", PropertyController.getPropertyById);
 router.delete("/:id", PropertyController.deleteProperty);
+router.patch("/review/:id", PropertyController.addReview);
 
 router.post(
     "/",

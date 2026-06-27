@@ -30,6 +30,11 @@ export const PropertyController = {
       res.status(500).json({ message: error.message || 'Internal Server Error' });
     }
   },
+  addReview: async (req: Request, res: Response): Promise<any> => {
+    console.log(req.body, req.params.id);
+    const review = await PropertyService.addReview(req.params.id as string, req.body);
+    res.status(200).json({data:review, message: "Review added successfully" });
+  },
   getFeaturedProperties: async (req: Request, res: Response): Promise<any> => {
     try {
       const data = await PropertyService.getFeaturedProperties();

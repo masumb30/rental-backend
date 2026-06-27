@@ -49,6 +49,16 @@ const PropertySchema: Schema = new Schema(
       id: {type: String}, // Optional: If you want to store the Better Auth userId here as well for quick access
     },
     rejectionReason: { type: String, trim: true }, // Optional: Reason for rejection if status is Rejected
+    reviews: [
+      {
+        userId: { type: String, required: true },
+        user: { type: String, required: true },
+        email: { type: String, required: true },
+        rating: { type: Number, required: true, min: 1, max: 5 },
+        review: { type: String, trim: true },
+        date: { type: Date, default: Date.now }
+      }
+    ]
   },
   { timestamps: true } 
 );

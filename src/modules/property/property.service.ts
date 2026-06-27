@@ -55,6 +55,10 @@ export const PropertyService = {
       }
     };
   },
+  addReview: async (propertyId: string, reviewData: any) => {
+    const property = await Property.findByIdAndUpdate(propertyId, { $push: { reviews: reviewData } }, { new: true });
+    return (property as any)?.reviews;
+  },
   getPropertyById: async (propertyId: string) => {
     const data = await Property.findById(propertyId);
     return data;
