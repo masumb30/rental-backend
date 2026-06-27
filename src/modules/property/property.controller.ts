@@ -30,6 +30,17 @@ export const PropertyController = {
       res.status(500).json({ message: error.message || 'Internal Server Error' });
     }
   },
+  getFeaturedProperties: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const data = await PropertyService.getFeaturedProperties();
+      res.status(200).json({ data });
+    } catch (error: any) {
+      console.error("Error in getFeaturedProperties controller:", error);
+      res.status(500).json({ message: error.message || 'Internal Server Error' });
+    }
+  },
+
+
   getAllPropertiesForAdmin: async (req: Request, res: Response): Promise<any> => {
     try {
       // 1. Extract and sanitize query parameters

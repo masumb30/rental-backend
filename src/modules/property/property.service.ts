@@ -59,6 +59,10 @@ export const PropertyService = {
     const data = await Property.find() // Fetch all properties for admin view
     return data;
   },
+  getFeaturedProperties: async () => {
+    const data = await Property.find().limit(6); // Fetch all properties for admin view
+    return data;
+  },
 
 
   // Async function to create and save a property to MongoDB
