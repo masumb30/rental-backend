@@ -55,6 +55,10 @@ export const PropertyService = {
       }
     };
   },
+  getPropertyById: async (propertyId: string) => {
+    const data = await Property.findById(propertyId);
+    return data;
+  },
   getAllPropertiesForAdmin: async () => {
     const data = await Property.find() // Fetch all properties for admin view
     return data;

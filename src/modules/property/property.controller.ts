@@ -39,6 +39,16 @@ export const PropertyController = {
       res.status(500).json({ message: error.message || 'Internal Server Error' });
     }
   },
+  getPropertyById: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const propertyId = req.params.id;
+      const data = await PropertyService.getPropertyById(propertyId as string);
+      res.status(200).json({ data });
+    } catch (error: any) {
+      console.error("Error in getPropertyById controller:", error);
+      res.status(500).json({ message: error.message || 'Internal Server Error' });
+    }
+  },
 
 
   getAllPropertiesForAdmin: async (req: Request, res: Response): Promise<any> => {
