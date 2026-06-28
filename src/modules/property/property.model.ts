@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IProperty extends Document {
   title: string;
@@ -64,3 +64,26 @@ const PropertySchema: Schema = new Schema(
 );
 
 export const Property = mongoose.model<IProperty>('Property', PropertySchema);
+
+export interface IPropertyFavorite extends Document {
+  userId: string; // 'any' or a User interface if populated
+  propertyId: Types.ObjectId[] | any[]; // Array of ObjectIds or populated Property objects
+}
+
+// 2. Update the Schema with 'type: Schema.Types.ObjectId' and 'ref'
+const PropertyFavoriteSchema = new Schema(
+  {
+    userId: { 
+      type:String, // Must match the exact name of your User model
+      required: true 
+    },
+    propertyId: [{ 
+      type: Schema.Types.ObjectId, 
+      ref: 'Property', // Must match the exact name of your Property model
+      required: true 
+    }],
+  },
+  { timestamps: true }
+);
+
+export const PropertyFavorite = mongoose.model<IPropertyFavorite>('PropertyFavorite', PropertyFavoriteSchema);
