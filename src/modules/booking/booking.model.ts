@@ -7,11 +7,13 @@ export interface IBooking {
   propertyOwner: string;
   propertyOwnerId: Types.ObjectId;
   propertyId: Types.ObjectId;
+  propertyTitle: string;
   moveInDate: string; // Stored as YYYY-MM-DD string as per your object format
   contactNumber: string;
   notes: string;
   stripePaymentId: string;
   amountPaid: number;
+  status: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -47,6 +49,11 @@ const BookingSchema = new Schema<IBookingDocument>(
       ref: 'Property', // Matches your property model name for potential population
       required: true,
     },
+    propertyTitle: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     moveInDate: {
       type: String,
       required: true,
@@ -70,6 +77,10 @@ const BookingSchema = new Schema<IBookingDocument>(
       type: Number,
       required: true,
     },
+    status: {
+      type: String,
+      required: true,
+    }
   },
   {
     // Automatically adds and manages createdAt and updatedAt ISO timestamp tracks
